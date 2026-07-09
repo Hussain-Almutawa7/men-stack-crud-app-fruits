@@ -5,7 +5,7 @@ const app = express();
 app.use(morgan("dev"));
 
 app.get("/", (req, res) => {
-    res.send("This is a test path");
+    res.render("home.ejs");
 });
 
 app.listen(3000, () => {
