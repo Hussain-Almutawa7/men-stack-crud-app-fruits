@@ -5,6 +5,7 @@ dns.setServers(["8.8.8.8", "1.1.1.1"]);
 const dotenv = require("dotenv").config(); // making .env file available
 const express = require("express");
 const morgan = require("morgan");
+const path = require("path");
 const mongoose = require("mongoose");
 const Fruit = require("./models/fruit.js")
 
@@ -16,19 +17,31 @@ mongoose.connection.on("connected", () => {
     console.log(`Connected to MongoDB ${mongoose.connection.name}`);
 });
 
+app.use(express.static(path.join(__dirname, "public")))
+app.use(express.urlencoded({extended: false}));
 app.use(morgan("dev"));
 
+// HOME PAGE
 app.get("/", (req, res) => {
     res.render("home.ejs");
 });
 
-//This route will change often
-app.get("/fruits", async (req, res) => {
-    // Use mongoose method to find Fruit nit ready to eat
-    let deletedFruit = await Fruit.findByIdAndDelete("6a4f6b64980d3428ff714f44");
+// GET /fruits/new (form for creating fruits)
+app.get("/fruits/new", async (req, res) => {
+    res.render("new.ejs")
+});
 
-    //View the created fruit
-    res.send(deletedFruit);
+// POST /fruits (create fruit in database)
+app.post("/fruits", async (req, res) => {
+    const fruitData = {
+        name: req.body.name,
+    };
+
+    fruitData.isReadyToEat = req.body.isReadyToEat === "on" ? true : false;
+
+    let createdFruit = await Fruit.create(fruitData);
+
+    res.redirect("/")
 });
 
 app.listen(3000, () => {
