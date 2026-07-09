@@ -25,12 +25,10 @@ app.get("/", (req, res) => {
 //This route will change often
 app.get("/fruits", async (req, res) => {
     // Use mongoose method to find Fruit nit ready to eat
-    let notReady = await Fruit.find({
-        isReadyToEat: false
-    });
+    let deletedFruit = await Fruit.findByIdAndDelete("6a4f6b64980d3428ff714f44");
 
     //View the created fruit
-    res.send(notReady);
+    res.send(deletedFruit);
 });
 
 app.listen(3000, () => {
@@ -65,3 +63,13 @@ app.listen(3000, () => {
     // let notReady = await Fruit.find({
     //     isReadyToEat: false
     // });
+
+// FIND FRUIT Ex. by name and update it
+    // Use mongoose method to find Fruit nit ready to eat
+    // let updatedFruit = await Fruit.findOneAndUpdate({name:"Apple"}, {name: "Pineapple"}, {new: true});
+
+// SAME AS ABOVE BUT BY ID
+    // let updatedFruit = await Fruit.findByIdAndUpdate("6a4f6b64980d3428ff714f44", {name: "BananaUpdated"}, {new: true});
+
+// FIND BY ID AND DELETE FRUIT
+    // let deletedFruit = await Fruit.findByIdAndDelete("6a4f6b64980d3428ff714f44");
