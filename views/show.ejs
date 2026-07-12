@@ -6,5 +6,7 @@
 <form action="/fruits/<%= fruit.id %>?_method=DELETE" method="POST">
     <button type="submit">Delete</button>
 </form>
+
+  <a class="fruits-index-link" href="/fruits/<%= fruit.id %>/edit">Edit <%= fruit.name %></a>
 </body>
 </html>
