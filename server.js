@@ -7,6 +7,7 @@ const express = require("express");
 const morgan = require("morgan");
 const path = require("path");
 const mongoose = require("mongoose");
+const methodOverride = require("method-override");
 const Fruit = require("./models/fruit.js")
 
 const app = express();
@@ -19,6 +20,7 @@ mongoose.connection.on("connected", () => {
 
 app.use(express.static(path.join(__dirname, "public")))
 app.use(express.urlencoded({extended: false}));
+app.use(methodOverride("_method"));
 app.use(morgan("dev"));
 
 // HOME PAGE
@@ -42,6 +44,24 @@ app.post("/fruits", async (req, res) => {
     let createdFruit = await Fruit.create(fruitData);
 
     res.redirect("/")
+});
+
+// GET /fruits to display all fruit
+app.get("/fruits", async (req, res) => {
+    const fruits = await Fruit.find();
+    res.render("fruits.ejs", { fruits });
+});
+
+// GET /fruit/id to display single fruit
+app.get("/fruits/:Id", async (req, res) => {
+    const fruit = await Fruit.findById(req.params.Id)
+    res.render("show.ejs", {fruit})
+});
+
+// DELETE
+app.delete("/fruits/:Id", async (req, res) => {
+    await Fruit.findByIdAndDelete(req.params.Id);
+    res.redirect("/fruits")
 });
 
 app.listen(3000, () => {

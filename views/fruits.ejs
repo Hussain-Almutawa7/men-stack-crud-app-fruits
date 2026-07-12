@@ -1,0 +1,13 @@
+<%- include("./partials/nav") %>
+<h1>All Fruits</h1>
+<ul>
+  <% fruits.forEach(fruit => { %>
+    <li>Name: <%= fruit.name %></li>
+    <li>Ready: <%= fruit.isReadyToEat %></li>
+    <li><a href=<%= `/fruits/${fruit.id}` %>>View Item Details</a></li>
+    <hr>
+    <% }) %>
+</ul>
+</body>
+
+</html>

@@ -1,0 +1,10 @@
+<%- include("./partials/nav") %>
+<h1>Single Fruit</h1>
+<h2><%= fruit.name %></h2>
+<h3><%= fruit.isReadyToEat? "The Fruit is ready to eat" : "The fruit is not ready to eat" %></h3>
+
+<form action="/fruits/<%= fruit.id %>?_method=DELETE" method="POST">
+    <button type="submit">Delete</button>
+</form>
+</body>
+</html>
