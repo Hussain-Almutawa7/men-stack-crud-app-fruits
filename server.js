@@ -2,13 +2,15 @@ const dns = require("node:dns");
 
 dns.setServers(["8.8.8.8", "1.1.1.1"]);
 
-const dotenv = require("dotenv").config(); // making .env file available
+const fruitsCtrl = require("./controllers/fruits-controller.js");
+const methodOverride = require("method-override");
+const dotenv = require("dotenv").config(); // Allow .env file
+const Fruit = require("./models/fruit.js")
+const mongoose = require("mongoose");
 const express = require("express");
 const morgan = require("morgan");
 const path = require("path");
-const mongoose = require("mongoose");
-const methodOverride = require("method-override");
-const Fruit = require("./models/fruit.js")
+
 
 const app = express();
 
@@ -19,105 +21,74 @@ mongoose.connection.on("connected", () => {
 });
 
 app.use(express.static(path.join(__dirname, "public")))
-app.use(express.urlencoded({extended: false}));
+app.use(express.urlencoded({ extended: false }));
 app.use(methodOverride("_method"));
 app.use(morgan("dev"));
 
 // HOME PAGE
-app.get("/", (req, res) => {
-    res.render("home.ejs");
-});
+app.get("/", fruitsCtrl.home);
 
 // GET /fruits/new (form for creating fruits)
-app.get("/fruits/new", async (req, res) => {
-    res.render("new.ejs")
-});
+app.get("/fruits/new", fruitsCtrl.showNewForm);
 
 // POST /fruits (create fruit in database)
-app.post("/fruits", async (req, res) => {
-    const fruitData = {
-        name: req.body.name,
-    };
-
-    fruitData.isReadyToEat = req.body.isReadyToEat === "on" ? true : false;
-
-    let createdFruit = await Fruit.create(fruitData);
-
-    res.redirect("/")
-});
+app.post("/fruits", fruitsCtrl.create);
 
 // GET /fruits to display all fruit
-app.get("/fruits", async (req, res) => {
-    const fruits = await Fruit.find();
-    res.render("fruits.ejs", { fruits });
-});
+app.get("/fruits", fruitsCtrl.index);
 
 // GET /fruit/id to display single fruit
-app.get("/fruits/:Id", async (req, res) => {
-    const fruit = await Fruit.findById(req.params.Id)
-    res.render("show.ejs", {fruit})
-});
+app.get("/fruits/:Id", fruitsCtrl.show);
 
 // DELETE
-app.delete("/fruits/:Id", async (req, res) => {
-    await Fruit.findByIdAndDelete(req.params.Id);
-    res.redirect("/fruits")
-});
+app.delete("/fruits/:Id", fruitsCtrl.deleteFruit);
 
 // GET (show form to edit)
-app.get("/fruits/:Id/edit", async (req, res) => {
-    const fruit = await Fruit.findById(req.params.Id);
-    res.render("edit.ejs", {fruit})
-});
+app.get("/fruits/:Id/edit", fruitsCtrl.editForm);
 
 // PUT (edit)
-app.put("/fruits/:Id", async (req, res) => {
-    req.body.isReadyToEat = req.body.isReadyToEat === "on"? true : false;
-
-    await Fruit.findByIdAndUpdate(req.params.Id, req.body);
-
-    res.redirect(`/fruits/${req.params.Id}`)
-});
+app.put("/fruits/:Id", fruitsCtrl.update);
 
 app.listen(3000, () => {
     console.log('Listening on port 3000');
 });
 
+// Checking
 
 // CODE GRAVEYARD ============================================
 
 // CREATE ONE FRUIT
-    // Create the fruit object
-    // const fruitData = {
-    //     name: "Apple",
-    //     isReadyToEat: false,
-    // };
+// Create the fruit object
+// const fruitData = {
+//     name: "Apple",
+//     isReadyToEat: false,
+// };
 
-    // Use mongoose method to add it to the DB
-    // let createdFruit = await Fruit.create(fruitData);
+// Use mongoose method to add it to the DB
+// let createdFruit = await Fruit.create(fruitData);
 
 // FIND ALL FRUITS
-    // Use mongoose method to find all Fruits
-    // let allFruits = await Fruit.find();
+// Use mongoose method to find all Fruits
+// let allFruits = await Fruit.find();
 
 // FIND SPECIFIC FRUIT Ex. by name
-    // Use mongoose method to find Fruit with sepecific name
-    // let findApple = await Fruit.find({
-    //     name: "Apple"
-    // });
+// Use mongoose method to find Fruit with sepecific name
+// let findApple = await Fruit.find({
+//     name: "Apple"
+// });
 
 // FIND FRUITs THAT IS NOT READY
-    // Use mongoose method to find Fruit that isReadyToEat is false
-    // let notReady = await Fruit.find({
-    //     isReadyToEat: false
-    // });
+// Use mongoose method to find Fruit that isReadyToEat is false
+// let notReady = await Fruit.find({
+//     isReadyToEat: false
+// });
 
 // FIND FRUIT Ex. by name and update it
-    // Use mongoose method to find Fruit nit ready to eat
-    // let updatedFruit = await Fruit.findOneAndUpdate({name:"Apple"}, {name: "Pineapple"}, {new: true});
+// Use mongoose method to find Fruit nit ready to eat
+// let updatedFruit = await Fruit.findOneAndUpdate({name:"Apple"}, {name: "Pineapple"}, {new: true});
 
 // SAME AS ABOVE BUT BY ID
-    // let updatedFruit = await Fruit.findByIdAndUpdate("6a4f6b64980d3428ff714f44", {name: "BananaUpdated"}, {new: true});
+// let updatedFruit = await Fruit.findByIdAndUpdate("6a4f6b64980d3428ff714f44", {name: "BananaUpdated"}, {new: true});
 
 // FIND BY ID AND DELETE FRUIT
-    // let deletedFruit = await Fruit.findByIdAndDelete("6a4f6b64980d3428ff714f44");
+// let deletedFruit = await Fruit.findByIdAndDelete("6a4f6b64980d3428ff714f44");
